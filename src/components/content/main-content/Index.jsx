@@ -1,48 +1,99 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
+
+import './MainContent.scss';
 import Grid from '../grid/Grid';
 import Paginate from '../paginate/Paginate';
-import Slideshow from '../slide-show/Slideshow';
-import './MainContent.scss';
-const MainContent = () => {
-  const images = [
-    {
-      url: 'https://img.wallpapersafari.com/desktop/1440/900/53/79/ajwtby.jpg',
-      rating: 8.5
-    },
-    {
-      url: 'https://cdn.wallpapersafari.com/66/81/kmY4Rg.jpg',
-      rating: 8
-    },
-    {
-      url: 'https://w0.peakpx.com/wallpaper/720/8/HD-wallpaper-vijay-master-movie-poster.jpg',
-      rating: 10
-    }
-  ];
-  const [currentPage, setCurrentPage] = useState(1);
-  const paginate = (type) => {
-    if (type === 'prev' && currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
-    } else {
-      setCurrentPage((prev) => prev + 1);
-    }
+import SlideShow from '../slide-show/Slideshow';
+import { getMovies, setResPgNm } from '../../../redux/actions/movies';
+
+const MainContent = (props) => {
+  const IMAGE_URL = 'https://image.tmdb.org/t/p/original/';
+
+  const { list, totalPages, page, movieType, setResPgNm, getMovies } = props;
+  const [currentPage, setCurrentPage] = useState(page);
+  const [images, setImages] = useState([]);
+  const randomMovies = list
+    .sort(() => Math.random() - Math.random())
+    .slice(0, 6);
+
+  const HEADER_TYPE = {
+    now_playing: 'Now Playing',
+    popular: 'Popular',
+    top_rated: 'Top Rated',
+    upcoming: 'Upcoming'
   };
+
+  useEffect(() => {
+    if (randomMovies.length) {
+      const IMAGES = [
+        {
+          id: 1,
+          url: `${IMAGE_URL}/${randomMovies[0].backdrop_path}`
+        },
+        {
+          id: 2,
+          url: `${IMAGE_URL}/${randomMovies[1].backdrop_path}`
+        },
+        {
+          id: 3,
+          url: `${IMAGE_URL}/${randomMovies[2].backdrop_path}`
+        },
+        {
+          id: 4,
+          url: `${IMAGE_URL}/${randomMovies[3].backdrop_path}`
+        },
+        {
+          id: 5,
+          url: `${IMAGE_URL}/${randomMovies[4].backdrop_path}`
+        },
+        {
+          id: 6,
+          url: `${IMAGE_URL}/${randomMovies[5].backdrop_path}`
+        }
+      ];
+      setImages(IMAGES);
+    }
+
+    // eslint-disable-next-line
+  }, []);
+  useEffect(() => {
+    setCurrentPage(page);
+  }, [page, totalPages]);
+  const paginate = (type) => {
+    let pageNumber = currentPage;
+    if (type === 'prev' && currentPage >= 1) {
+      pageNumber -= 1;
+    } else {
+      pageNumber += 1;
+    }
+    setCurrentPage(pageNumber);
+    setResPgNm(pageNumber, totalPages);
+    getMovies(movieType, pageNumber);
+  };
+
   return (
     <div className="main-content">
-      <Slideshow images={images} auto={false} />
+      <SlideShow images={images} auto={true} />
       <div className="grid-movie-title">
-        <div className="movieType">Now Playing</div>
+        <div className="movieType">{HEADER_TYPE[movieType]}</div>
         <div className="paginate">
           <Paginate
             currentPage={currentPage}
-            totalPages={10}
+            totalPages={totalPages}
             paginate={paginate}
           />
         </div>
       </div>
-      <Grid images={images} />
+      <Grid />
     </div>
   );
 };
 
-export default MainContent;
+const mapStateToProps = (state) => ({
+  list: state.movies.list,
+  totalPages: state.movies.totalPages,
+  page: state.movies.page,
+  movieType: state.movies.movieType
+});
+export default connect(mapStateToProps, { setResPgNm, getMovies })(MainContent);

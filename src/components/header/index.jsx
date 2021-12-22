@@ -1,9 +1,20 @@
 import React from 'react';
 import { useState } from 'react';
 import './Header.scss';
+import { connect } from 'react-redux';
+import {
+  getMovies,
+  setMovieType,
+  setResPgNm
+} from '../../redux/actions/movies';
 import logo from '../../assets/movie-logo.svg';
-const Header = () => {
+import { useEffect } from 'react';
+import { API_URL } from '../../services/movie.services';
+const Header = (props) => {
   let [navClass, setNavClass] = useState(false);
+  const { getMovies, page, totalPages, setMovieType, setResPgNm, movieType } =
+    props;
+  const [type, setType] = useState('now_playing');
   let [menuClass, setMenuClass] = useState(false);
   const HEADER_LIST = [
     {
@@ -32,6 +43,19 @@ const Header = () => {
     }
   ];
 
+  useEffect(() => {
+    getMovies(type, page);
+    setResPgNm(page, totalPages);
+  }, [type]);
+  const setMovieTypeUrl = (type) => {
+    setType(type);
+    setMovieType(type);
+  };
+
+  const fetchData = async () => {
+    const res = await API_URL('now_playing', 1);
+    console.log(res);
+  };
   const toggleMenu = (e) => {
     menuClass = !menuClass;
     navClass = !navClass;
@@ -67,10 +91,18 @@ const Header = () => {
           }`}
         >
           {HEADER_LIST.map((data, i) => (
-            <li className="header-nav-item" key={data.id}>
-              <spam className="header-list-icon">
+            <li
+              className={
+                data.type === type
+                  ? 'header-nav-item active-item'
+                  : 'header-nav-item'
+              }
+              key={data.id}
+              onClick={() => setMovieTypeUrl(data.type)}
+            >
+              <span className="header-list-icon">
                 <i className={data.iconClass} />
-              </spam>
+              </span>
               &nbsp;
               <span className="header-list-name">{data.name}</span>
             </li>
@@ -85,5 +117,14 @@ const Header = () => {
     </div>
   );
 };
-
-export default Header;
+const mapStateToProps = (state) => ({
+  list: state.movies.list,
+  totalPages: state.movies.totalPages,
+  page: state.movies.page,
+  movieType: state.movies.movieType
+});
+export default connect(mapStateToProps, {
+  getMovies,
+  setResPgNm,
+  setMovieType
+})(Header);
