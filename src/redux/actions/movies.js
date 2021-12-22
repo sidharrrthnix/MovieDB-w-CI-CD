@@ -1,4 +1,4 @@
-import { API_URL } from '../../services/movie.services';
+import { API_URL, SEARCH_API_URL } from '../../services/movie.services';
 
 export const getMovies = (type, pageNumber) => async (dispatch) => {
   try {
@@ -48,6 +48,29 @@ export const setResPgNm = (page, totalPages) => async (dispatch) => {
 };
 export const setMovieType = (type) => async (dispatch) => {
   dispatchMethod('MOVIE_TYPE', type, dispatch);
+};
+export const searchQuery = (query) => async (dispatch) => {
+  dispatchMethod('SEARCH_QUERY', query, dispatch);
+};
+export const searchResult = (query) => async (dispatch) => {
+  try {
+    if (query) {
+      const movies = await SEARCH_API_URL(query);
+      const { results } = movies.data;
+      dispatchMethod('SEARCH_RESULT', results, dispatch);
+    } else {
+      dispatchMethod('SEARCH_RESULT', [], dispatch);
+    }
+  } catch (error) {
+    if (error.response) {
+      const payload = {
+        message:
+          error.response.data.message || error.response.data.status_message,
+        statusCode: error.response.status
+      };
+      dispatchMethod('SET_ERROR', payload, dispatch);
+    }
+  }
 };
 const dispatchMethod = (type, payload, dispatch) => {
   dispatch({
