@@ -5,16 +5,27 @@ import { connect } from 'react-redux';
 import {
   getMovies,
   setMovieType,
-  setResPgNm
+  setResPgNm,
+  searchResult,
+  searchQuery
 } from '../../redux/actions/movies';
 import logo from '../../assets/movie-logo.svg';
 import { useEffect } from 'react';
 import { API_URL } from '../../services/movie.services';
 const Header = (props) => {
   let [navClass, setNavClass] = useState(false);
-  const { getMovies, page, totalPages, setMovieType, setResPgNm, movieType } =
-    props;
+  const {
+    getMovies,
+    page,
+    totalPages,
+    setMovieType,
+    setResPgNm,
+    movieType,
+    searchQuery,
+    searchResult
+  } = props;
   const [type, setType] = useState('now_playing');
+  const [search, setSearch] = useState('');
   let [menuClass, setMenuClass] = useState(false);
   const HEADER_LIST = [
     {
@@ -67,6 +78,11 @@ const Header = (props) => {
       document.body.classList.remove('header-nav-open');
     }
   };
+  const onSearchChange = (e) => {
+    setSearch(e.target.value);
+    searchQuery(e.target.value);
+    searchResult(e.target.value);
+  };
   return (
     <div className="header-nav-wrapper">
       <div className="header-bar"></div>
@@ -111,6 +127,8 @@ const Header = (props) => {
             className={`search-input`}
             type="text"
             placeholder="Search for a movie"
+            value={search}
+            onChange={onSearchChange}
           />
         </ul>
       </div>
@@ -126,5 +144,7 @@ const mapStateToProps = (state) => ({
 export default connect(mapStateToProps, {
   getMovies,
   setResPgNm,
-  setMovieType
+  setMovieType,
+  searchResult,
+  searchQuery
 })(Header);
