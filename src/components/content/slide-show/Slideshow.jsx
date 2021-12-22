@@ -16,10 +16,15 @@ const SlideShow = (props) => {
   let currentSlideIndex = 0;
 
   useEffect(() => {
+    setState({
+      ...state,
+      slideshow: images[0],
+      slideIndex: 0
+    });
     if (auto) {
       const timeout = setInterval(function () {
         autoMoveSlide();
-      }, 3000);
+      }, 6000);
       // setSliderTimeout(timeout);
 
       return () => {
