@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { connect } from 'react-redux';
 import { useEffect } from 'react';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import LazyImage from '../../lazy-image/LazyImage';
 const Grid = (props) => {
   // console.log(props);
@@ -15,6 +16,7 @@ const Grid = (props) => {
     setMovieData(list);
   }, [list]);
   // console.log(movieData);
+  const formatMovieTitle = (title) => title.toLowerCase().replace(/ /g, '-');
   return (
     <>
       <div className="grid">
@@ -33,7 +35,13 @@ const Grid = (props) => {
               alt="placeholder"
             ></LazyImage> */}
               <div className="grid-read-more">
-                <button className="grid-cell-button">Read More</button>
+                <button className="grid-cell-button">
+                  <Link
+                    to={`/${data.id}/${formatMovieTitle(data.title)}/detail`}
+                  >
+                    Read More
+                  </Link>
+                </button>
               </div>
               <div className="grid-detail">
                 <span className="grid-detail-title">{data.title}</span>
