@@ -7,16 +7,18 @@ import {
   setMovieType,
   setResPgNm,
   searchResult,
-  searchQuery
+  searchQuery,
+  clearMovies
 } from '../../redux/actions/movies';
 import logo from '../../assets/movie-logo.svg';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { useEffect } from 'react';
 import { API_URL } from '../../services/movie.services';
 const Header = (props) => {
   let [navClass, setNavClass] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     getMovies,
     page,
@@ -25,7 +27,8 @@ const Header = (props) => {
     setResPgNm,
     movieType,
     searchQuery,
-    searchResult
+    searchResult,
+    clearMovies
   } = props;
   const [type, setType] = useState('now_playing');
   const [search, setSearch] = useState('');
@@ -56,14 +59,27 @@ const Header = (props) => {
       type: 'upcoming'
     }
   ];
-
+  const [disableSearch, setDisableSearch] = useState(false);
   useEffect(() => {
+    if (location.pathname !== '/' && location.key) {
+      setDisableSearch(true);
+    }
     getMovies(type, page);
     setResPgNm(page, totalPages);
-  }, [type]);
+  }, [type, location, disableSearch]);
   const setMovieTypeUrl = (type) => {
-    setType(type);
-    setMovieType(type);
+    setDisableSearch(false);
+    if (location.pathname !== '/') {
+      clearMovies();
+      navigate('/');
+      setType(type);
+      setMovieType(type);
+      // setType('now_playing');
+      // setMovieType('now_playing');
+    } else {
+      setType(type);
+      setMovieType(type);
+    }
   };
 
   const fetchData = async () => {
@@ -90,7 +106,14 @@ const Header = (props) => {
     <div className="header-nav-wrapper">
       <div className="header-bar"></div>
       <div className="header-navbar">
-        <div className="header-image" onClick={() => navigate('/')}>
+        <div
+          className="header-image"
+          onClick={() => {
+            clearMovies();
+            navigate('/');
+            setDisableSearch(false);
+          }}
+        >
           <img src={logo} alt="" />
         </div>
         <div
@@ -127,7 +150,7 @@ const Header = (props) => {
             </li>
           ))}
           <input
-            className={`search-input`}
+            className={`search-input ${disableSearch ? 'disabled' : ''}`}
             type="text"
             placeholder="Search for a movie"
             value={search}
@@ -149,5 +172,6 @@ export default connect(mapStateToProps, {
   setResPgNm,
   setMovieType,
   searchResult,
-  searchQuery
+  searchQuery,
+  clearMovies
 })(Header);

@@ -1,10 +1,16 @@
 import React from 'react';
 import './Crew.scss';
-const Crew = () => {
+import { connect } from 'react-redux';
+import { movieDetails } from '../../../redux/actions/movies';
+
+import { IMAGE_URL } from '../../../services/movie.services';
+import { useState } from 'react';
+const Crew = ({ movie }) => {
+  const [credits] = useState(movie[1]);
   return (
     <>
       <div className="cast">
-        <div className="div-title">Cast</div>
+        <div className="div-title">Crew</div>
         <table>
           <thead>
             <tr>
@@ -14,20 +20,32 @@ const Crew = () => {
               <th className="head">Job</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>
-                <img src={'http://placehold.it/54x81'} alt="" />
-              </td>
-              <td>Ryan Reynold</td>
-              <td>Actor</td>
-              <td>Lead for entire movie</td>
-            </tr>
-          </tbody>
+          {credits.crew.map((data) => (
+            <tbody key={data.id}>
+              <tr>
+                <td>
+                  <img
+                    src={
+                      data.profile_path
+                        ? `${IMAGE_URL}${data.profile_path}`
+                        : 'http://placehold.it/54x81'
+                    }
+                    alt=""
+                  />
+                </td>
+                <td>{data.name}</td>
+                <td>{data.department}</td>
+                <td>{data.job}</td>
+              </tr>
+            </tbody>
+          ))}
         </table>
       </div>
     </>
   );
 };
 
-export default Crew;
+const mapStateToProps = (state) => ({
+  movie: state.movies.movie
+});
+export default connect(mapStateToProps)(Crew);
