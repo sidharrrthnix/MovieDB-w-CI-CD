@@ -10,10 +10,13 @@ import {
   searchQuery
 } from '../../redux/actions/movies';
 import logo from '../../assets/movie-logo.svg';
+import { useNavigate } from 'react-router-dom';
+
 import { useEffect } from 'react';
 import { API_URL } from '../../services/movie.services';
 const Header = (props) => {
   let [navClass, setNavClass] = useState(false);
+  const navigate = useNavigate();
   const {
     getMovies,
     page,
@@ -87,7 +90,7 @@ const Header = (props) => {
     <div className="header-nav-wrapper">
       <div className="header-bar"></div>
       <div className="header-navbar">
-        <div className="header-image">
+        <div className="header-image" onClick={() => navigate('/')}>
           <img src={logo} alt="" />
         </div>
         <div
